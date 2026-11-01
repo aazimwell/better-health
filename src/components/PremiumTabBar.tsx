@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, gradients } from '@/theme';
+import { playClick } from '@/lib/sound';
 
 /** Minimal shape of the props react-navigation passes to a custom tab bar. */
 interface TabBarProps {
@@ -27,7 +28,7 @@ export function PremiumTabBar({ state, descriptors, navigation }: TabBarProps) {
           const color = focused ? '#FFFFFF' : '#8197B3';
           const onPress = () => {
             const e = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
-            if (!focused && !e.defaultPrevented) navigation.navigate(route.name, route.params);
+            if (!focused && !e.defaultPrevented) { playClick(); navigation.navigate(route.name, route.params); }
           };
           return (
             <Pressable key={route.key} onPress={onPress} accessibilityRole="button" accessibilityLabel={label}
