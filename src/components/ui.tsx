@@ -10,6 +10,7 @@ import { useRouter } from 'expo-router';
 import { colors, gradients, radius, shadow, STATUS_STYLE } from '@/theme';
 import { EmptyIllustration, DoctorAvatar } from './illustrations';
 import { signedAvatarUrl } from '@/services/storage';
+import { playClick } from '@/lib/sound';
 
 /* ---------- Screen wrapper ---------- */
 export function Screen({
@@ -47,7 +48,7 @@ export function Header({ title, right, back = true }: { title: string; right?: R
   return (
     <View style={s.header}>
       {back ? (
-        <Pressable onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} hitSlop={12} style={s.backBtn}>
+        <Pressable onPress={() => { playClick(); router.canGoBack() ? router.back() : router.replace('/'); }} hitSlop={12} style={s.backBtn}>
           <Ionicons name="arrow-back" size={22} color={colors.text} />
         </Pressable>
       ) : <View style={{ width: 8 }} />}
@@ -70,7 +71,7 @@ export function Button({
   const grad = variant === 'primary' ? gradients.primary : variant === 'success' ? gradients.success : variant === 'danger' ? gradients.danger : null;
   return (
     <Pressable
-      onPress={off ? undefined : onPress}
+      onPress={off ? undefined : () => { playClick(); onPress?.(); }}
       style={({ pressed }) => [
         s.btn,
         { backgroundColor: grad ? 'transparent' : variant === 'ghost' ? 'transparent' : bg, borderColor: variant === 'outline' ? colors.primary : 'transparent', opacity: off ? 0.55 : pressed ? 0.88 : 1, overflow: 'hidden' },
@@ -120,12 +121,12 @@ export function Input({
 /* ---------- Card / chips / badges ---------- */
 export function Card({ children, style, onPress }: { children: ReactNode; style?: StyleProp<ViewStyle>; onPress?: () => void }) {
   const inner = <View style={[s.card, style]}>{children}</View>;
-  return onPress ? <Pressable onPress={onPress} style={({ pressed }) => ({ opacity: pressed ? 0.9 : 1 })}>{inner}</Pressable> : inner;
+  return onPress ? <Pressable onPress={() => { playClick(); onPress(); }} style={({ pressed }) => ({ opacity: pressed ? 0.9 : 1 })}>{inner}</Pressable> : inner;
 }
 
 export function Chip({ label, active, onPress }: { label: string; active?: boolean; onPress?: () => void }) {
   return (
-    <Pressable onPress={onPress} style={[s.chip, active && { backgroundColor: colors.primary, borderColor: colors.primary }]}>
+    <Pressable onPress={() => { playClick(); onPress?.(); }} style={[s.chip, active && { backgroundColor: colors.primary, borderColor: colors.primary }]}>
       <Text style={[s.chipText, active && { color: '#fff' }]}>{label}</Text>
     </Pressable>
   );
@@ -211,7 +212,7 @@ export function Row({ icon, label, value, onPress, danger, last }: {
   icon: keyof typeof Ionicons.glyphMap; label: string; value?: string; onPress?: () => void; danger?: boolean; last?: boolean;
 }) {
   return (
-    <Pressable onPress={onPress} style={[s.menuRow, !last && { borderBottomWidth: 1, borderBottomColor: colors.border }]}>
+    <Pressable onPress={() => { playClick(); onPress?.(); }} style={[s.menuRow, !last && { borderBottomWidth: 1, borderBottomColor: colors.border }]}>
       <Ionicons name={icon} size={20} color={danger ? colors.danger : colors.primary} />
       <Text style={[s.menuLabel, danger && { color: colors.danger }]}>{label}</Text>
       {value ? <Text style={{ color: colors.textMuted, marginRight: 6, fontSize: 12 }}>{value}</Text> : null}
@@ -279,7 +280,7 @@ export function ConfirmHost() {
             <Pressable onPress={() => done(false)} style={({ pressed }) => ({ flex: 1, minHeight: 50, borderRadius: radius.md, backgroundColor: '#F1F5FA', alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.8 : 1 })}>
               <Text style={{ fontWeight: '700', color: colors.text, fontSize: 15 }}>Cancel</Text>
             </Pressable>
-            <Pressable onPress={() => done(true)} style={({ pressed }) => ({ flex: 1, minHeight: 50, borderRadius: radius.md, backgroundColor: tone, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.85 : 1 })}>
+            <Pressable onPress={() => { playClick(); done(true); }} style={({ pressed }) => ({ flex: 1, minHeight: 50, borderRadius: radius.md, backgroundColor: tone, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.85 : 1 })}>
               <Text style={{ fontWeight: '800', color: '#fff', fontSize: 15 }}>{req?.confirmLabel}</Text>
             </Pressable>
           </View>
