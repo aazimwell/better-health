@@ -14,7 +14,7 @@ interface TabBarProps {
 export function PremiumTabBar({ state, descriptors, navigation }: TabBarProps) {
   const insets = useSafeAreaInsets();
   return (
-    <View style={[s.bar, { paddingBottom: Math.max(insets.bottom, 8) }]}>
+    <View style={[s.bar, { bottom: insets.bottom + 12, paddingBottom: 10 }]}>
       <View style={s.topLine} />
       <View style={s.row}>
         {state.routes.map((route, i) => {
@@ -54,8 +54,10 @@ export function PremiumTabBar({ state, descriptors, navigation }: TabBarProps) {
 
 const s = StyleSheet.create({
   bar: {
-    position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingTop: 8,
+    // Floating bar: NOT stuck to the very bottom — 12px gap above the system bar,
+    // rounded on all corners, so it floats instead of hugging the screen edge.
+    position: 'absolute', left: 12, right: 12, backgroundColor: '#FFFFFF',
+    borderRadius: 28, paddingTop: 8,
     shadowColor: '#1A4F99', shadowOpacity: 0.16, shadowRadius: 20, shadowOffset: { width: 0, height: -6 }, elevation: 16,
   },
   topLine: { position: 'absolute', top: 0, left: 28, right: 28, height: 1, backgroundColor: 'rgba(31,123,240,0.10)' },
