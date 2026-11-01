@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -8,8 +8,8 @@ import { HeroIllustration, ProgressBannerArt, ServiceArt } from '@/components/il
 import { useAuth } from '@/lib/auth';
 import { useNotifications } from '@/lib/notifications';
 import { useAsync } from '@/hooks/useAsync';
-import { doctorIdsWorkingOn, listDoctors, myAppointments } from '@/services/api';
-import { CATEGORIES, CATEGORY_TAGLINE, TAB_SPACE, dayNum, dayShort, fmtTime, fullDoctorName, greeting, isoWeekday, monthShort, timeAgo, todayISO } from '@/lib/utils';
+import { doctorIdsWorkingOn, listDoctors, listServices, myAppointments } from '@/services/api';
+import { TAB_SPACE, dayNum, dayShort, fmtTime, fullDoctorName, greeting, isoWeekday, monthShort, money, timeAgo, todayISO } from '@/lib/utils';
 import { colors, gradients, radius, shadow } from '@/theme';
 
 export default function Home() {
@@ -17,12 +17,13 @@ export default function Home() {
   const { profile } = useAuth();
   const { items, unread } = useNotifications();
   const appts = useAsync(() => myAppointments(profile!.id), [profile?.id], !!profile);
+  const services = useAsync(listServices, []);
   const docs = useAsync(async () => {
     const [d, ids] = await Promise.all([listDoctors(), doctorIdsWorkingOn(isoWeekday())]);
     return d.map((x) => ({ ...x, today: ids.includes(x.id) }));
   }, []);
 
-  useFocusEffect(useCallback(() => { appts.reload(); }, [profile?.id])); // eslint-disable-line react-hooks/exhaustive-deps
+  useFocusEffect(useCallback(() => { appts.reload(); services.reload(); }, [profile?.id])); // eslint-disable-line react-hooks/exhaustive-deps
 
   const today = todayISO();
   const upcoming = (appts.data ?? [])
@@ -38,7 +39,7 @@ export default function Home() {
   ];
 
   return (
-    <Screen bottomSpace={TAB_SPACE} onRefresh={() => { appts.reload(); docs.reload(); }} refreshing={appts.loading && !!appts.data}>
+    <Screen bottomSpace={TAB_SPACE} onRefresh={() => { appts.reload(); docs.reload(); services.reload(); }} refreshing={appts.loading && !!appts.data}>
       {/* header */}
       <View style={s.head}>
         <Avatar path={profile?.avatar_url} name={profile?.full_name} size={46} />
@@ -101,19 +102,34 @@ export default function Home() {
         </Card>
       )}
 
-      {/* services */}
+      {/* services — rectangular grid of actual services */}
       <SectionTitle title="Our Services" action="See All" onAction={() => router.push('/(patient)/book')} />
-      <View style={s.grid}>
-        {CATEGORIES.map((c) => (
-          <Pressable key={c} style={s.svc} onPress={() => router.push({ pathname: '/(patient)/book', params: { category: c } })}>
-            <ServiceArt category={c} size={44} />
-            <View style={{ marginLeft: 10, flex: 1 }}>
-              <Text style={{ fontWeight: '700', color: colors.text, fontSize: 13 }} numberOfLines={1}>{c}</Text>
-              <Text style={{ color: colors.textMuted, fontSize: 11, marginTop: 2 }}>{CATEGORY_TAGLINE[c]}</Text>
-            </View>
-          </Pressable>
-        ))}
-      </View>
+      {services.loading && !services.data ? (
+        <Card><Text style={{ color: colors.textMuted }}>Loading services…</Text></Card>
+      ) : (services.data ?? []).length === 0 ? (
+        <Card><Text style={{ color: colors.textMuted }}>No services yet.</Text></Card>
+      ) : (
+        <View style={s.grid}>
+          {(services.data ?? []).map((sv) => {
+            const v = sv.image_url ?? '';
+            return (
+              <Pressable key={sv.id} style={s.svcCard} onPress={() => router.push({ pathname: '/booking/new', params: { serviceId: sv.id } })}>
+                {v.startsWith('icon:') ? (
+                  <View style={s.svcIcon}><Ionicons name={v.slice(5) as any} size={26} color={colors.primary} /></View>
+                ) : v.startsWith('http') ? (
+                  <Image source={{ uri: v }} style={s.svcImg} resizeMode="cover" />
+                ) : (
+                  <View style={s.svcIcon}><ServiceArt category={sv.category} size={44} /></View>
+                )}
+                <Text style={s.svcName} numberOfLines={2}>{sv.name}</Text>
+                <Text style={s.svcCat} numberOfLines={1}>{sv.category}</Text>
+                <Text style={s.svcPrice}>From {money(sv.price)}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      )}
+      <Button title="Book Appointment" onPress={() => router.push('/(patient)/book')} style={{ marginTop: 4 }} />
 
       {/* doctors */}
       <SectionTitle title="Available Doctors" action="View all" onAction={() => router.push('/doctors')} />
@@ -179,7 +195,12 @@ const s = StyleSheet.create({
   dateDay: { fontSize: 11, color: colors.primary, fontWeight: '600' },
   dateNum: { fontSize: 22, color: colors.text, fontWeight: '800', lineHeight: 26 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-  svc: { width: '48.5%', flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: radius.lg, padding: 10, marginBottom: 10, borderWidth: 1, borderColor: '#E6F0FB' },
+  svcCard: { width: '48.5%', backgroundColor: '#fff', borderRadius: radius.lg, padding: 14, marginBottom: 12, borderWidth: 1, borderColor: colors.border, ...shadow, shadowOpacity: 0.07 },
+  svcIcon: { width: 52, height: 52, borderRadius: 26, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
+  svcImg: { width: '100%', height: 72, borderRadius: radius.md, marginBottom: 10 },
+  svcName: { fontWeight: '700', color: colors.text, fontSize: 14, lineHeight: 18 },
+  svcCat: { color: colors.textMuted, fontSize: 11, marginTop: 3 },
+  svcPrice: { fontSize: 13, fontWeight: '800', color: colors.primary, marginTop: 6 },
   docCard: { width: 130, backgroundColor: '#fff', borderRadius: radius.lg, padding: 12, marginRight: 10, alignItems: 'center', borderWidth: 1, borderColor: '#E6F0FB' },
   avail: { marginTop: 8, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill },
   nIcon: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },

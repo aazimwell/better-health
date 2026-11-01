@@ -10,7 +10,7 @@ import { listNotifications, markAllRead, markRead } from '@/services/api';
 import type { AppNotification } from './types';
 
 Notifications.setNotificationHandler({
-  handleNotification: async () => ({ shouldShowAlert: true, shouldPlaySound: false, shouldSetBadge: false, shouldShowBanner: true, shouldShowList: true }),
+  handleNotification: async () => ({ shouldShowAlert: true, shouldPlaySound: false, shouldSetBadge: true, shouldShowBanner: true, shouldShowList: true }),
 });
 
 interface Ctx {
@@ -20,12 +20,12 @@ interface Ctx {
 const NCtx = createContext<Ctx>({ items: [], unread: 0, loading: false, reload: async () => {}, read: async () => {}, readAll: async () => {} });
 export const useNotifications = () => useContext(NCtx);
 
-/** Registers an Expo push token. Delivery additionally needs the `send-push` Edge Function (see README). */
+/** Registers an Expo push token. Delivery when the app is closed needs the `send-push` Edge Function + a Database Webhook (see supabase/functions/send-push/README.md) — without those two deploy steps, notifications only arrive in-app while open. */
 async function registerPush(userId: string) {
   try {
     if (!Device.isDevice) return;
     if (Platform.OS === 'android') {
-      await Notifications.setNotificationChannelAsync('default', { name: 'Better Health', importance: Notifications.AndroidImportance.HIGH, lightColor: '#1A73E8' });
+      await Notifications.setNotificationChannelAsync('default', { name: 'Better Health', importance: Notifications.AndroidImportance.HIGH, lightColor: '#0B4FD8', vibrationPattern: [0, 250, 250, 250], showBadge: true });
     }
     const existing = await Notifications.getPermissionsAsync();
     let status = existing.status;
