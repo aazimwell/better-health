@@ -20,6 +20,16 @@ export const colors = {
   orangeSoft: '#FFEBDD',
 };
 
+/** Shared brand gradients (all 3-stop for a richer, less flat look). */
+export const gradients = {
+  hero: ['#1450C8', '#1F7BF0', '#3FB6FF'] as const,        // deep royal → bright sky
+  primary: ['#3B9BFF', '#1F6FEB', '#1650C0'] as const,     // buttons / active nav
+  success: ['#5FD39A', '#2DB87C', '#1A9060'] as const,
+  danger: ['#FF7A7F', '#E5484D', '#C23036'] as const,
+  brand: ['#1F7BF0', '#2AA7C9', '#35C48F'] as const,       // blue → teal → green (logo colours)
+  screen: ['#D3E8FF', '#E9F3FF', '#F8FBFF'] as const,
+};
+
 export const radius = { sm: 10, md: 16, lg: 22, xl: 28, pill: 999 };
 export const space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 20, xxl: 28 };
 
