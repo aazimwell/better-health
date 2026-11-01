@@ -10,14 +10,14 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#EAF4FF"
+      "backgroundColor": "#FFFFFF"
     },
     "android": {
       "package": "com.betterhealth.app",
       "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#EAF4FF"
+        "backgroundColor": "#FFFFFF"
       },
       "permissions": [
         "POST_NOTIFICATIONS",
