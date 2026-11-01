@@ -1,11 +1,11 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Button } from '@/components/ui';
-import { LogoMark, WelcomeIllustration } from '@/components/illustrations';
+import { LogoMark } from '@/components/illustrations';
 import { colors, radius, shadow } from '@/theme';
 import { useAuth } from '@/lib/auth';
 import { Banner } from '@/components/ui';
@@ -29,8 +29,8 @@ export default function Welcome() {
           <Text style={s.sub}>Professional physiotherapy & chiropractic care for a pain-free tomorrow.</Text>
         </View>
 
-        <View style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center' }}>
-          <WelcomeIllustration width={width} height={(width * 250) / 340} />
+        <View style={{ flex: 1, marginTop: 8 }}>
+          <Image source={require('../../src/assets/welcome-hero.webp')} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
         </View>
 
         <View style={s.sheet}>
