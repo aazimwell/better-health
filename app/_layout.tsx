@@ -5,7 +5,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from '@/lib/auth';
 import { NotificationsProvider } from '@/lib/notifications';
-import { ErrorBoundary } from '@/components/ui';
+import { ConfirmHost, ErrorBoundary } from '@/components/ui';
 
 export default function RootLayout() {
   return (
@@ -16,6 +16,7 @@ export default function RootLayout() {
             <NotificationsProvider>
               <StatusBar style="dark" />
               <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right', contentStyle: { backgroundColor: '#EAF4FF' } }} />
+              <ConfirmHost />
             </NotificationsProvider>
           </AuthProvider>
         </SafeAreaProvider>
