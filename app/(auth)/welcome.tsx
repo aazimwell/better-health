@@ -14,18 +14,23 @@ export default function Welcome() {
   const router = useRouter();
   const { configured } = useAuth();
   return (
-    <View style={{ flex: 1 }}>
-      {/* Full-screen photo background (the photo file itself is unchanged) */}
-      <Image
-        source={require('../../src/assets/welcome-hero.webp')}
-        style={StyleSheet.absoluteFill}
-        resizeMode="cover"
-      />
-      {/* Subtle dark gradient at top and bottom only, so the header text stays readable */}
+    <View style={{ flex: 1, backgroundColor: '#041230' }}>
+      {/* Photo, zoomed out and centred so BOTH doctor and patient are visible.
+          resizeMode="contain" (not "cover") stops the sides being cropped off.
+          The photo file itself is unchanged. */}
+      <View style={StyleSheet.absoluteFill}>
+        <Image
+          source={require('../../src/assets/welcome-hero.webp')}
+          style={{ flex: 1, width: '100%' }}
+          resizeMode="contain"
+        />
+      </View>
+      {/* Light gradient at the very top only, so the header text stays readable
+          without darkening the photo in the middle. */}
       <LinearGradient
-        colors={['rgba(4, 18, 48, 0.62)', 'rgba(4, 18, 48, 0.08)', 'rgba(4, 18, 48, 0.08)', 'rgba(4, 18, 48, 0.72)']}
-        locations={[0, 0.38, 0.62, 1]}
-        style={StyleSheet.absoluteFill}
+        colors={['rgba(4, 18, 48, 0.55)', 'rgba(4, 18, 48, 0)']}
+        locations={[0, 1]}
+        style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 240 }}
       />
       <SafeAreaView style={{ flex: 1, justifyContent: 'space-between' }} edges={['top', 'bottom']}>
         <View style={s.top}>
@@ -42,7 +47,11 @@ export default function Welcome() {
 
         <View style={s.sheet}>
           {!configured && <Banner type="info" text="Setup needed: add your Supabase URL and key to .env (see README)." />}
-          <Button title="Log In" icon="arrow-forward" onPress={() => router.push('/(auth)/login')} style={{ backgroundColor: '#0B4FD8' }} />
+          {/* Solid Log In button — NO gradient, NO gloss overlay, as requested. */}
+          <Pressable onPress={() => router.push('/(auth)/login')} style={({ pressed }) => [s.loginBtn, { opacity: pressed ? 0.88 : 1 }]}>
+            <Ionicons name="arrow-forward" size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+            <Text style={s.loginText}>Log In</Text>
+          </Pressable>
           <Button title="Register" variant="outline" onPress={() => router.push('/(auth)/register')} style={{ marginTop: 12, backgroundColor: '#FFFFFF', borderColor: '#0B4FD8' }} />
           <Pressable style={s.admin} onPress={() => router.push('/(auth)/admin-login')}>
             <Ionicons name="shield-checkmark" size={18} color="#0B4FD8" />
@@ -62,6 +71,8 @@ const s = StyleSheet.create({
   headline: { fontSize: 34, fontWeight: '800', color: '#FFFFFF', marginTop: 24, lineHeight: 40 },
   sub: { fontSize: 14, color: 'rgba(255, 255, 255, 0.9)', marginTop: 10, lineHeight: 20, maxWidth: 290 },
   sheet: { backgroundColor: '#FFFFFF', borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 22, ...shadow },
+  loginBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#0B4FD8', paddingVertical: 15, borderRadius: radius.md },
+  loginText: { color: '#FFFFFF', fontWeight: '800', fontSize: 16 },
   admin: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 12, paddingVertical: 14, borderRadius: radius.md, borderWidth: 1, borderColor: 'rgba(11, 79, 216, 0.35)', backgroundColor: 'rgba(11, 79, 216, 0.12)' },
   adminText: { marginLeft: 8, fontWeight: '700', color: '#0B4FD8' },
 });
