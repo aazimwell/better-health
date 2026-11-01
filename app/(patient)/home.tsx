@@ -10,7 +10,7 @@ import { useNotifications } from '@/lib/notifications';
 import { useAsync } from '@/hooks/useAsync';
 import { doctorIdsWorkingOn, listDoctors, myAppointments } from '@/services/api';
 import { CATEGORIES, CATEGORY_TAGLINE, TAB_SPACE, dayNum, dayShort, fmtTime, fullDoctorName, greeting, isoWeekday, monthShort, timeAgo, todayISO } from '@/lib/utils';
-import { colors, radius, shadow } from '@/theme';
+import { colors, gradients, radius, shadow } from '@/theme';
 
 export default function Home() {
   const router = useRouter();
@@ -53,7 +53,7 @@ export default function Home() {
       </View>
 
       {/* hero */}
-      <LinearGradient colors={['#1F7BF0', '#2B9BFF']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={s.hero}>
+      <LinearGradient colors={gradients.hero} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={s.hero}>
         <View style={{ flex: 1, paddingRight: 6 }}>
           <Text style={s.heroTitle}>Your Health,{'\n'}Our Priority</Text>
           <Text style={s.heroSub}>Expert care. Better movement. A healthier you.</Text>
@@ -154,7 +154,7 @@ export default function Home() {
 
       {/* promo */}
       <Pressable onPress={() => router.push('/(patient)/book')} style={s.promo}>
-        <ProgressBannerArt width={340} height={90} />
+        <ProgressBannerArt />
         <View style={StyleSheet.absoluteFill}>
           <Text style={s.promoText}>Small Steps,{'\n'}Big Progress</Text>
         </View>
