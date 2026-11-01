@@ -1,8 +1,7 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, gradients } from '@/theme';
+import { colors } from '@/theme';
 
 /** Minimal shape of the props react-navigation passes to a custom tab bar. */
 interface TabBarProps {
@@ -11,7 +10,7 @@ interface TabBarProps {
   navigation: { emit: (e: any) => { defaultPrevented: boolean }; navigate: (name: string, params?: object) => void };
 }
 
-/** Premium bottom navigation: gradient glow capsule behind the active icon, bold label, crisp badge. */
+/** Premium bottom navigation: solid capsule behind the active icon (no gradient), bold label, crisp badge. */
 export function PremiumTabBar({ state, descriptors, navigation }: TabBarProps) {
   const insets = useSafeAreaInsets();
   return (
@@ -34,10 +33,9 @@ export function PremiumTabBar({ state, descriptors, navigation }: TabBarProps) {
               accessibilityState={focused ? { selected: true } : {}} style={s.item} android_ripple={{ color: 'transparent' }}>
               <View style={s.iconWrap}>
                 {focused ? (
-                  <LinearGradient colors={gradients.primary} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[s.capsule, s.glow]}>
-                    <View pointerEvents="none" style={s.shine} />
+                  <View style={[s.capsule, s.glow, { backgroundColor: colors.primary }]}>
                     {options.tabBarIcon?.({ focused, color, size: 22 })}
-                  </LinearGradient>
+                  </View>
                 ) : (
                   <View style={s.capsule}>{options.tabBarIcon?.({ focused, color, size: 23 })}</View>
                 )}
@@ -66,7 +64,6 @@ const s = StyleSheet.create({
   iconWrap: { height: 34, minWidth: 56, alignItems: 'center', justifyContent: 'center' },
   capsule: { width: 54, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   glow: { shadowColor: '#1F6FEB', shadowOpacity: 0.45, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
-  shine: { position: 'absolute', left: 0, right: 0, top: 0, height: '48%', backgroundColor: 'rgba(255,255,255,0.16)' },
   label: { fontSize: 11, fontWeight: '600', color: '#8197B3', marginTop: 3, marginBottom: 2 },
   labelOn: { color: colors.primaryDark, fontWeight: '800' },
   badge: {
