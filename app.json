@@ -1,0 +1,53 @@
+{
+  "expo": {
+    "name": "Better Health",
+    "slug": "better-health",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "betterhealth",
+    "userInterfaceStyle": "light",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#EAF4FF"
+    },
+    "android": {
+      "package": "com.betterhealth.app",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#EAF4FF"
+      },
+      "permissions": [
+        "POST_NOTIFICATIONS",
+        "CAMERA",
+        "READ_MEDIA_IMAGES"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-notifications",
+        {
+          "color": "#1A73E8"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Better Health to choose a profile photo."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": false
+    },
+    "extra": {
+      "eas": {
+        "projectId": "38b146c4-8b9d-43f8-ad2c-15a01788e2dc"
+      }
+    },
+    "owner": "better1"
+  }
+}
