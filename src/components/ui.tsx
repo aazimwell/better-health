@@ -67,19 +67,17 @@ export function Button({
   const bg = variant === 'primary' ? colors.primary : variant === 'danger' ? colors.danger : variant === 'success' ? colors.success : '#FFFFFF';
   const fg = variant === 'primary' || variant === 'danger' || variant === 'success' ? '#FFF' : colors.primary;
   const off = disabled || loading;
-  const grad = variant === 'primary' ? gradients.primary : variant === 'success' ? gradients.success : variant === 'danger' ? gradients.danger : null;
+  // Solid buttons only — NO gradient and NO gloss overlay on any button variant.
   return (
     <Pressable
       onPress={off ? undefined : onPress}
       style={({ pressed }) => [
         s.btn,
-        { backgroundColor: grad ? 'transparent' : variant === 'ghost' ? 'transparent' : bg, borderColor: variant === 'outline' ? colors.primary : 'transparent', opacity: off ? 0.55 : pressed ? 0.88 : 1, overflow: 'hidden' },
+        { backgroundColor: variant === 'ghost' ? 'transparent' : bg, borderColor: variant === 'outline' ? colors.primary : 'transparent', opacity: off ? 0.55 : pressed ? 0.88 : 1, overflow: 'hidden' },
         variant === 'primary' && { ...shadow, shadowColor: '#1F6FEB', shadowOpacity: 0.28, shadowRadius: 12 },
         style,
       ]}
     >
-      {grad && <LinearGradient colors={grad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />}
-      {grad && <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: 0, height: '50%', backgroundColor: 'rgba(255,255,255,0.10)' }} />}
       {loading ? <ActivityIndicator color={fg} /> : (
         <>
           {icon && <Ionicons name={icon} size={18} color={fg} style={{ marginRight: 8 }} />}
