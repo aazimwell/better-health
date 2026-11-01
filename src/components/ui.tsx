@@ -7,7 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { colors, radius, shadow, STATUS_STYLE } from '@/theme';
+import { colors, gradients, radius, shadow, STATUS_STYLE } from '@/theme';
 import { EmptyIllustration, DoctorAvatar } from './illustrations';
 import { signedAvatarUrl } from '@/services/storage';
 
@@ -31,7 +31,7 @@ export function Screen({
     <View style={[{ flex: 1 }, padded && { paddingHorizontal: 18 }]}>{children}</View>
   );
   return (
-    <LinearGradient colors={['#DCEEFF', '#EEF6FF', '#F7FBFF']} style={{ flex: 1 }}>
+    <LinearGradient colors={gradients.screen} style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }} edges={edges}>
         {keyboard ? (
           <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>{body}</KeyboardAvoidingView>
@@ -67,16 +67,19 @@ export function Button({
   const bg = variant === 'primary' ? colors.primary : variant === 'danger' ? colors.danger : variant === 'success' ? colors.success : '#FFFFFF';
   const fg = variant === 'primary' || variant === 'danger' || variant === 'success' ? '#FFF' : colors.primary;
   const off = disabled || loading;
+  const grad = variant === 'primary' ? gradients.primary : variant === 'success' ? gradients.success : variant === 'danger' ? gradients.danger : null;
   return (
     <Pressable
       onPress={off ? undefined : onPress}
       style={({ pressed }) => [
         s.btn,
-        { backgroundColor: variant === 'ghost' ? 'transparent' : bg, borderColor: variant === 'outline' ? colors.primary : 'transparent', opacity: off ? 0.55 : pressed ? 0.85 : 1 },
-        variant === 'primary' && shadow,
+        { backgroundColor: grad ? 'transparent' : variant === 'ghost' ? 'transparent' : bg, borderColor: variant === 'outline' ? colors.primary : 'transparent', opacity: off ? 0.55 : pressed ? 0.88 : 1, overflow: 'hidden' },
+        variant === 'primary' && { ...shadow, shadowColor: '#1F6FEB', shadowOpacity: 0.28, shadowRadius: 12 },
         style,
       ]}
     >
+      {grad && <LinearGradient colors={grad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />}
+      {grad && <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: 0, height: '50%', backgroundColor: 'rgba(255,255,255,0.10)' }} />}
       {loading ? <ActivityIndicator color={fg} /> : (
         <>
           {icon && <Ionicons name={icon} size={18} color={fg} style={{ marginRight: 8 }} />}
@@ -157,7 +160,7 @@ export function Avatar({ path, url, name, size = 44, seed }: { path?: string | n
     return () => { live = false; };
   }, [path, url]);
   if (uri) return <Image source={{ uri }} style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: colors.primarySoft }} />;
-  return <DoctorAvatar seed={seed ?? name ?? ''} size={size} />;
+  return <DoctorAvatar seed={seed ?? name ?? ''} name={name} size={size} />;
 }
 
 /* ---------- States ---------- */
@@ -236,14 +239,54 @@ export function FormModal({ visible, title, onClose, children }: { visible: bool
   );
 }
 
-/** Promise-based confirmation dialog for destructive actions. */
+/* ---------- Branded confirmation dialog ---------- */
+type ConfirmReq = { title: string; message: string; confirmLabel: string; destructive: boolean; resolve: (v: boolean) => void };
+let showConfirm: ((r: ConfirmReq) => void) | null = null;
+
+/** Promise-based confirmation dialog (themed). Needs <ConfirmHost /> mounted once in the root layout. */
 export function confirmAction(title: string, message: string, confirmLabel = 'Confirm', destructive = true): Promise<boolean> {
   return new Promise((resolve) => {
+    if (showConfirm) { showConfirm({ title, message, confirmLabel, destructive, resolve }); return; }
+    // fallback if the host is not mounted yet
     Alert.alert(title, message, [
       { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
       { text: confirmLabel, style: destructive ? 'destructive' : 'default', onPress: () => resolve(true) },
     ], { cancelable: true, onDismiss: () => resolve(false) });
   });
+}
+
+export function ConfirmHost() {
+  const [req, setReq] = useState<ConfirmReq | null>(null);
+  useEffect(() => {
+    showConfirm = (r) => setReq(r);
+    return () => { showConfirm = null; };
+  }, []);
+  const done = (v: boolean) => { const r = req; setReq(null); r?.resolve(v); };
+  const isLogout = /log\s?out/i.test(req?.title ?? '');
+  const icon: keyof typeof Ionicons.glyphMap = isLogout ? 'log-out-outline' : req?.destructive ? 'alert-circle-outline' : 'help-circle-outline';
+  const tone = req?.destructive ? colors.danger : colors.primary;
+  const toneSoft = req?.destructive ? colors.dangerSoft : colors.primarySoft;
+  return (
+    <Modal visible={!!req} transparent animationType="fade" statusBarTranslucent onRequestClose={() => done(false)}>
+      <Pressable onPress={() => done(false)} style={{ flex: 1, backgroundColor: 'rgba(15,42,74,0.5)', justifyContent: 'center', padding: 28 }}>
+        <Pressable onPress={() => {}} style={{ backgroundColor: '#fff', borderRadius: 28, padding: 24, alignItems: 'center', ...shadow, shadowOpacity: 0.25 }}>
+          <View style={{ width: 68, height: 68, borderRadius: 34, backgroundColor: toneSoft, alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
+            <Ionicons name={icon} size={34} color={tone} />
+          </View>
+          <Text style={{ fontSize: 20, fontWeight: '800', color: colors.text, textAlign: 'center' }}>{req?.title}</Text>
+          <Text style={{ fontSize: 14, color: colors.textMuted, textAlign: 'center', marginTop: 8, lineHeight: 21 }}>{req?.message}</Text>
+          <View style={{ flexDirection: 'row', gap: 12, marginTop: 22, width: '100%' }}>
+            <Pressable onPress={() => done(false)} style={({ pressed }) => ({ flex: 1, minHeight: 50, borderRadius: radius.md, backgroundColor: '#F1F5FA', alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.8 : 1 })}>
+              <Text style={{ fontWeight: '700', color: colors.text, fontSize: 15 }}>Cancel</Text>
+            </Pressable>
+            <Pressable onPress={() => done(true)} style={({ pressed }) => ({ flex: 1, minHeight: 50, borderRadius: radius.md, backgroundColor: tone, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.85 : 1 })}>
+              <Text style={{ fontWeight: '800', color: '#fff', fontSize: 15 }}>{req?.confirmLabel}</Text>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Pressable>
+    </Modal>
+  );
 }
 
 /* ---------- Error boundary ---------- */
