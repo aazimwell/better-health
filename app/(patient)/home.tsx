@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -8,7 +8,7 @@ import { HeroIllustration, ProgressBannerArt, ServiceArt } from '@/components/il
 import { useAuth } from '@/lib/auth';
 import { useNotifications } from '@/lib/notifications';
 import { useAsync } from '@/hooks/useAsync';
-import { doctorIdsWorkingOn, listDoctors, listServices, myAppointments } from '@/services/api';
+import { doctorIdsWorkingOn, listBanners, listDoctors, listServices, myAppointments } from '@/services/api';
 import { TAB_SPACE, dayNum, dayShort, fmtTime, fullDoctorName, greeting, isoWeekday, monthShort, money, timeAgo, todayISO } from '@/lib/utils';
 import { colors, gradients, radius, shadow } from '@/theme';
 
@@ -18,12 +18,13 @@ export default function Home() {
   const { items, unread } = useNotifications();
   const appts = useAsync(() => myAppointments(profile!.id), [profile?.id], !!profile);
   const services = useAsync(listServices, []);
+  const banners = useAsync(listBanners, []);
   const docs = useAsync(async () => {
     const [d, ids] = await Promise.all([listDoctors(), doctorIdsWorkingOn(isoWeekday())]);
     return d.map((x) => ({ ...x, today: ids.includes(x.id) }));
   }, []);
 
-  useFocusEffect(useCallback(() => { appts.reload(); services.reload(); }, [profile?.id])); // eslint-disable-line react-hooks/exhaustive-deps
+  useFocusEffect(useCallback(() => { appts.reload(); services.reload(); banners.reload(); }, [profile?.id])); // eslint-disable-line react-hooks/exhaustive-deps
 
   const today = todayISO();
   const upcoming = (appts.data ?? [])
@@ -39,7 +40,7 @@ export default function Home() {
   ];
 
   return (
-    <Screen bottomSpace={TAB_SPACE} onRefresh={() => { appts.reload(); docs.reload(); services.reload(); }} refreshing={appts.loading && !!appts.data}>
+    <Screen bottomSpace={TAB_SPACE} onRefresh={() => { appts.reload(); docs.reload(); services.reload(); banners.reload(); }} refreshing={appts.loading && !!appts.data}>
       {/* header */}
       <View style={s.head}>
         <Avatar path={profile?.avatar_url} name={profile?.full_name} size={46} />
@@ -75,6 +76,24 @@ export default function Home() {
           </Pressable>
         ))}
       </View>
+
+      {/* home banners — all active banners, no day filter */}
+      {(banners.data ?? []).length > 0 && (
+        <>
+          <SectionTitle title="Offers & Stories" action="See All" onAction={() => router.push('/(patient)/book')} />
+          <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false}>
+            {(banners.data ?? []).map((b) => (
+              <Pressable key={b.id} style={s.bannerCard} onPress={() => { if (b.link_url) Linking.openURL(b.link_url); }}>
+                <Image source={{ uri: b.image_url }} style={s.bannerImg} resizeMode="cover" />
+                <View style={s.bannerText}>
+                  <Text style={s.bannerTitle} numberOfLines={2}>{b.title}</Text>
+                  {b.subtitle ? <Text style={s.bannerSub} numberOfLines={2}>{b.subtitle}</Text> : null}
+                </View>
+              </Pressable>
+            ))}
+          </ScrollView>
+        </>
+      )}
 
       {/* upcoming appointment */}
       <SectionTitle title="Upcoming Appointment" action="See all" onAction={() => router.push('/(patient)/appointments')} />
@@ -201,6 +220,11 @@ const s = StyleSheet.create({
   svcName: { fontWeight: '700', color: colors.text, fontSize: 14, lineHeight: 18 },
   svcCat: { color: colors.textMuted, fontSize: 11, marginTop: 3 },
   svcPrice: { fontSize: 13, fontWeight: '800', color: colors.primary, marginTop: 6 },
+  bannerCard: { width: Dimensions.get('window').width - 40, backgroundColor: '#fff', borderRadius: radius.lg, overflow: 'hidden', marginRight: 12, borderWidth: 1, borderColor: colors.border, ...shadow, shadowOpacity: 0.07 },
+  bannerImg: { width: '100%', height: 150 },
+  bannerText: { padding: 12 },
+  bannerTitle: { fontWeight: '800', color: colors.text, fontSize: 15, lineHeight: 19 },
+  bannerSub: { color: colors.textMuted, fontSize: 12, marginTop: 4, lineHeight: 16 },
   docCard: { width: 130, backgroundColor: '#fff', borderRadius: radius.lg, padding: 12, marginRight: 10, alignItems: 'center', borderWidth: 1, borderColor: '#E6F0FB' },
   avail: { marginTop: 8, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill },
   nIcon: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },

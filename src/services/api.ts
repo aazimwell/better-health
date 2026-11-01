@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import type {
-  Appointment, AppNotification, ClinicSettings, Doctor, MedicalHistory, PatientRow, Profile, Schedule, Service, Slot,
+  Appointment, AppNotification, ClinicSettings, Doctor, HomeBanner, MedicalHistory, PatientRow, Profile, Schedule, Service, Slot,
 } from '@/lib/types';
 
 /** Throws on error so callers can show a real error (never simulate success). */
@@ -29,6 +29,20 @@ export async function listServices(opts: { includeInactive?: boolean } = {}): Pr
 export async function saveService(s: Partial<Service> & { name: string; category: string }) {
   if (s.id) ok(await supabase.from('services').update(s).eq('id', s.id));
   else ok(await supabase.from('services').insert(s));
+}
+
+/* ---------- home banners (table created by migration 006_banners.sql) ---------- */
+export async function listBanners(opts: { includeInactive?: boolean } = {}): Promise<HomeBanner[]> {
+  let q = supabase.from('banners').select('*').order('sort_order').order('created_at');
+  if (!opts.includeInactive) q = q.eq('is_active', true);
+  return ok(await q);
+}
+export async function saveBanner(b: Partial<HomeBanner> & { title: string; image_url: string }) {
+  if (b.id) ok(await supabase.from('banners').update(b).eq('id', b.id));
+  else ok(await supabase.from('banners').insert(b));
+}
+export async function deleteBanner(id: string) {
+  ok(await supabase.from('banners').delete().eq('id', id));
 }
 
 export async function listDoctors(opts: { includeInactive?: boolean } = {}): Promise<Doctor[]> {

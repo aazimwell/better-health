@@ -19,6 +19,7 @@ export default function Manage() {
         <Row icon="medkit-outline" label="Doctors" onPress={go('/admin/doctors')} />
         <Row icon="people-circle-outline" label="Assistants" onPress={go('/admin/assistants')} />
         <Row icon="list-outline" label="Services" onPress={go('/admin/services')} />
+        <Row icon="image-outline" label="Home banners" onPress={go('/admin/banners')} />
         <Row icon="list-circle-outline" label="All appointments" onPress={go('/admin/appointments')} />
         <Row icon="bar-chart-outline" label="Reports & analytics" onPress={go('/admin/reports')} />
         <Row icon="megaphone-outline" label="Send announcement" onPress={go('/admin/announce')} />

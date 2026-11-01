@@ -61,7 +61,7 @@ const s = StyleSheet.create({
   brandSub: { fontSize: 12, color: 'rgba(255, 255, 255, 0.85)', fontWeight: '500' },
   headline: { fontSize: 34, fontWeight: '800', color: '#FFFFFF', marginTop: 24, lineHeight: 40 },
   sub: { fontSize: 14, color: 'rgba(255, 255, 255, 0.9)', marginTop: 10, lineHeight: 20, maxWidth: 290 },
-  sheet: { backgroundColor: 'rgba(255, 255, 255, 0.97)', borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 22, ...shadow },
-  admin: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 12, paddingVertical: 14, borderRadius: radius.md, borderWidth: 1, borderColor: 'rgba(11, 79, 216, 0.2)', backgroundColor: 'rgba(11, 79, 216, 0.08)' },
+  sheet: { backgroundColor: '#FFFFFF', borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 22, ...shadow },
+  admin: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 12, paddingVertical: 14, borderRadius: radius.md, borderWidth: 1, borderColor: 'rgba(11, 79, 216, 0.35)', backgroundColor: 'rgba(11, 79, 216, 0.12)' },
   adminText: { marginLeft: 8, fontWeight: '700', color: '#0B4FD8' },
 });

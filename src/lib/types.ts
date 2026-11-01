@@ -15,6 +15,10 @@ export interface Doctor {
   qualifications: string; university: string; specializations: string[]; experience_years: number;
   consultation_fee: number; photo_url: string | null; rating_avg: number; rating_count: number; is_active: boolean;
 }
+export interface HomeBanner {
+  id: string; title: string; subtitle: string | null; image_url: string; link_url: string | null;
+  is_active: boolean; sort_order: number; created_at: string;
+}
 export interface Service {
   id: string; name: string; description: string; category: string; price: number; image_url: string | null; is_active: boolean;
 }
