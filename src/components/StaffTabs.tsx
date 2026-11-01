@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/lib/auth';
 import { useNotifications } from '@/lib/notifications';
 import { Loading, Screen } from './ui';
+import { PremiumTabBar } from './PremiumTabBar';
 import { colors } from '@/theme';
 import type { Role } from '@/lib/types';
 
@@ -20,6 +21,7 @@ export function StaffTabs({ roles, tabs }: { roles: Role[]; tabs: StaffTab[] }) 
   if (!session || !role || !roles.includes(role)) return <Redirect href="/" />;
   return (
     <Tabs
+      tabBar={(props) => <PremiumTabBar {...(props as any)} />}
       screenOptions={{
         headerShown: false, tabBarActiveTintColor: colors.primary, tabBarInactiveTintColor: '#8FA3BD',
         tabBarLabelStyle: { fontSize: 11, fontWeight: '600', marginBottom: 2 },
