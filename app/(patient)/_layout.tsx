@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/lib/auth';
 import { useNotifications } from '@/lib/notifications';
 import { Loading, Screen } from '@/components/ui';
+import { PremiumTabBar } from '@/components/PremiumTabBar';
 import { colors } from '@/theme';
 
 type IconName = keyof typeof Ionicons.glyphMap;
@@ -25,6 +26,7 @@ export default function PatientLayout() {
 
   return (
     <Tabs
+      tabBar={(props) => <PremiumTabBar {...(props as any)} />}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
