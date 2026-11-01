@@ -5,13 +5,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Card, Header, Screen } from '@/components/ui';
 import { DeveloperPlaceholder, LogoMark } from '@/components/illustrations';
 import { APP_VERSION, DEVELOPER } from '@/config';
-import { colors, radius, shadow } from '@/theme';
+import { colors, gradients, radius, shadow } from '@/theme';
 
 export default function Developer() {
   return (
     <Screen>
       <Header title="Developer" />
-      <LinearGradient colors={['#1F7BF0', '#35C48F']} style={{ borderRadius: radius.xl, padding: 24, alignItems: 'center', ...shadow }}>
+      <LinearGradient colors={gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: radius.xl, padding: 24, alignItems: 'center', ...shadow }}>
         <View style={{ borderWidth: 4, borderColor: '#fff', borderRadius: 56, overflow: 'hidden' }}>
           {DEVELOPER.photo ? <Image source={DEVELOPER.photo} style={{ width: 104, height: 104 }} /> : <DeveloperPlaceholder size={104} />}
         </View>
